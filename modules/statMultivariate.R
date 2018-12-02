@@ -20,7 +20,7 @@ statMultivariateUI <- function(id) {
           pickerInput(
             ns("year"),
             "Please select year of interest",
-            choices = unique(dataset$year),
+            choices = unique(dataset2$year),
             multiple = TRUE,
             options = list(
               "actions-box" = TRUE
@@ -33,7 +33,7 @@ statMultivariateUI <- function(id) {
           pickerInput(
             ns("type"),
             "Please select water type of interest",
-            choices = unique(dataset$type),
+            choices = unique(dataset2$type),
             multiple = TRUE,
             options = list(
               "actions-box" = TRUE
@@ -46,12 +46,12 @@ statMultivariateUI <- function(id) {
           pickerInput(
             ns("year_ops"),
             "Please select year of interest",
-            choices = unique(dataset$year)
+            choices = unique(dataset2$year)
           ),
           pickerInput(
             ns("type_ops"),
             "Please select water type of interest",
-            choices = unique(dataset[dataset$year == "1997", "type"]),
+            choices = unique(dataset2[dataset2$year == "1997", "type"]),
             multiple = TRUE,
             options = list(
               "actions-box" = TRUE
@@ -61,7 +61,7 @@ statMultivariateUI <- function(id) {
         pickerInput(
           ns("parameter"),
           "Please select parameter to investigate",
-          choices = colnames(dataset)[-c(1, 2, 7)],
+          choices = colnames(dataset2)[-c(1, 2, 7)],
           multiple = TRUE,
           options = list(
             "actions-box" = TRUE
@@ -70,7 +70,7 @@ statMultivariateUI <- function(id) {
         pickerInput(
           ns("parameter_supp"),
           "Please select supplementary parameter to investigate",
-          choices = colnames(dataset)[-c(1, 2, 7)],
+          choices = colnames(dataset2)[-c(1, 2, 7)],
           multiple = TRUE,
           options = list(
             "actions-box" = TRUE
@@ -89,8 +89,8 @@ statMultivariateUI <- function(id) {
           tabPanel(
             "Data",
             icon = icon("table"),
-            h3("Agggregated dataset"),
-            withSpinner(DT::dataTableOutput(ns("dataset")), type = 4, color = "#44ade9")
+            h3("Agggregated dataset2"),
+            withSpinner(DT::dataTableOutput(ns("dataset2")), type = 4, color = "#44ade9")
           ),
           tabPanel(
             "Dimension",
@@ -164,7 +164,7 @@ statMultivariate <- function(input, output, session) {
   ns <- session$ns
 
   observeEvent(input$year_ops, {
-    type <- dataset %>%
+    type <- dataset2 %>%
       filter(year %in% input$year_ops) %>%
       select(type) %>%
       unique() %>%
@@ -187,21 +187,21 @@ statMultivariate <- function(input, output, session) {
 
   df <- eventReactive(input$apply, {
     if (input$profile == "Year") {
-      dataset %>%
+      dataset2 %>%
         select(year, one_of(input$parameter, input$parameter_supp)) %>%
         filter(year %in% input$year) %>%
         group_by(year) %>%
         summarise_if(is.numeric, mean, na.rm = TRUE) %>%
         rename(Profile = year)
     } else if (input$profile == "Type") {
-      dataset %>%
+      dataset2 %>%
         select(year, type, one_of(input$parameter, input$parameter_supp)) %>%
         filter(type %in% input$type) %>%
         group_by(type) %>%
         summarise_if(is.numeric, mean, na.rm = TRUE) %>%
         rename(Profile = type)
     } else if (input$profile == "Type per year") {
-      dataset %>%
+      dataset2 %>%
         select(year, type, one_of(input$parameter, input$parameter_supp)) %>%
         filter(year %in% input$year_ops) %>%
         filter(type %in% input$type_ops) %>%
@@ -229,7 +229,7 @@ statMultivariate <- function(input, output, session) {
     overview()
   }, colnames = FALSE)
 
-  output$dataset <- DT::renderDataTable({
+  output$dataset2 <- DT::renderDataTable({
     df() %>%
       mutate_if(is.numeric, round, 2) %>%
       datatable(

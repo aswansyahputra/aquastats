@@ -23,6 +23,13 @@ dataset <- read_csv("./data/BandungData.csv") %>%
   ) %>% 
   select(-code, year, type, aq, everything())
   
+dataset2 <- read_csv("./data/BandungData.csv") %>% 
+  select(-no) %>% 
+  mutate(
+    year = as.character(year),
+    type = str_c(type, aq, sep = "-")
+  ) %>% 
+  select(-code, year, type, aq, everything())
 
 # description <- read_csv("./data/datadescriptor.csv") %>%
 #   as_tibble() %>%
